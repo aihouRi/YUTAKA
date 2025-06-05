@@ -1,0 +1,50 @@
+# IDE/エディタ設定ファイル
+.vscode/
+.idea/
+*.iml
+*.iws
+
+# OS生成ファイル
+.DS_Store
+Thumbs.db
+
+# Go バックエンド関連
+# --------------------------
+# コンパイルされた実行可能ファイル
+backend/*.exe
+backend/*.exe~
+backend/*.dll
+backend/*.so
+backend/*.dylib
+backend/main # もし`cmd/server/main.go`を`backend/main`としてビルドする場合
+backend/tmp/ # `air`などのツールが生成する一時ディレクトリ
+
+# 依存関係管理 (Go Modulesはgo.modとgo.sumをコミットするのでvendorは通常不要)
+# backend/vendor/
+
+# 環境変数ファイル (ローカルの機密情報を含むためコミットしない)
+backend/.env
+backend/config.yml # もしローカル設定ファイルを使うなら
+
+# フロントエンド関連 (Reactなど)
+# ------------------------------------
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/.DS_Store
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.pnp.*
+
+# ログファイル
+*.log
+logs/
+
+# 一時ファイル
+*.tmp
+*~

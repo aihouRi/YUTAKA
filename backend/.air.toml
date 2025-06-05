@@ -1,0 +1,40 @@
+# .air.toml
+
+# 项目的根目录，"." 表示当前目录 (即 .air.toml 所在的目录)
+root = "."
+# 临时文件存放目录，air 会在这里编译和存放临时二进制文件
+tmp_dir = "tmp" # air 会自动创建这个目录
+
+[build]
+# 构建命令，告诉 air 如何编译你的程序
+# 我们需要编译 cmd/server/main.go 并将输出的可执行文件放到 tmp_dir 下
+# 确保这里的路径是正确的
+cmd = "go build -o ./tmp/main cmd/server/main.go"
+# 编译后生成的可执行文件的路径
+bin = "./tmp/main"
+# (可选) 在构建或运行时设置环境变量
+# envs = [
+#   "PORT=8080",
+# ]
+
+# 要监听的文件后缀名，当这些类型的文件发生变化时，air 会触发重新构建
+include_ext = ["go", "tpl", "tmpl", "html", "css", "js"] # 可以根据你的项目需要添加
+# 需要排除监听的目录
+exclude_dir = ["assets", "tmp", "vendor", "node_modules"] # 排除 tmp 目录很重要，防止无限循环构建
+# (可选) 需要监听的特定目录，默认为 root
+# include_dir = []
+# (可选) 需要排除监听的特定文件
+# exclude_file = []
+# (可选) 需要排除监听的正则表达式
+# exclude_regex = ["_test.go"]
+
+[log]
+# 日志输出时间格式
+time = true
+
+[misc]
+# 第一次构建成功后不立即清理 tmp 目录中的可执行文件
+clean_on_exit = false # 或者 true，如果你希望退出 air 时清理
+
+[screen]
+clear_on_rebuild = true # 重新构建时清空控制台，让输出更干净
