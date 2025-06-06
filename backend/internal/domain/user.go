@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 // User 结构体对应数据库中的 users 表
 type User struct {
@@ -10,4 +13,5 @@ type User struct {
 	Email     string
 	CreatedAt time.Time // DATETIME 也能被 parseTime=True 解析为 time.Time
 	UpdatedAt time.Time
+	DeletedAt sql.NullTime
 }

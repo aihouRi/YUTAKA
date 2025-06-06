@@ -43,34 +43,29 @@ func GetUserByID(id int64) (*domain.User, error) {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
-		// 其他类型的错误 (如数据库连接问题，数据类型不匹配等)
 		return nil, fmt.Errorf("GetUserByID: could not retrieve user with id %d: %v", id, err)
 	}
 	return &u, nil
 }
 
-// GetAllUsers 从数据库中检索所有用户
+// GetAllUsers
 func GetAllUsers() ([]domain.User, error) {
-	// SQL 查询语句
 	query := "SELECT id, username, password, email, created_at, updated_at FROM users"
 
-	// db.Query 用于执行可能返回多行的查询
+	// db.Query
 	rows, err := database.DB.Query(query)
 	if err != nil {
 		return nil, fmt.Errorf("GetAllUsers: could not retrieve users: %v", err)
 	}
 	defer rows.Close()
 
-	// 创建一个 User 切片用于存储所有用户数据
 	var users []domain.User
 
-	// 遍历结果集中的每一行
 	for rows.Next() {
 		var u domain.User
 		if err := rows.Scan(&u.ID, &u.Username, &u.Password, &u.Email, &u.CreatedAt, &u.UpdatedAt); err != nil {
 			return nil, fmt.Errorf("GetAllUsers: error scanning user row: %v", err)
 		}
-		// 将成功扫描的 User 添加到切片中
 		users = append(users, u)
 	}
 
@@ -78,8 +73,28 @@ func GetAllUsers() ([]domain.User, error) {
 		return nil, fmt.Errorf("GetAllUsers: error iterating user rows: %v", err)
 	}
 
-	// 返回包含所有用户的切片和 nil 错误
 	return users, nil
+}
+
+//名前でユーザーを取得する
+func GetUserByUsername(username string) (*domain.User, error) {
+	query := "SELECT id, username, password, email, created_at, updated_at,deleted_at FROM users WHERE username= ? AND deleted_at IS NULL"
+
+	row := database.DB.QueryRow(query, username)
+
+	var u domain.User
+
+	err := row.Scan(&u.ID, &u.Username, &u.Password, &u.Email, &u.CreatedAt, &u.UpdatedAt, &u.DeletedAt)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("repository.GetUserByUsername: データベースクエリエラー: %w", err)
+	}
+
+	return &u, nil
+
 }
 
 func UpdateUserEmail(id int64, newEmail string) (int64, error) {

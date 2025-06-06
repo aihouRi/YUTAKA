@@ -32,7 +32,6 @@ func HandleCreateUser(c *gin.Context) {
 	})
 }
 
-// 从id获取user
 func HandleGetUserID(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
@@ -55,7 +54,6 @@ func HandleGetUserID(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-// 获取所有用户
 func HandleGetAllUsers(c *gin.Context) {
 	user, err := repository.GetAllUsers()
 	if err != nil {
@@ -68,7 +66,6 @@ func HandleGetAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-// 更新用户邮箱
 func HandleUpdateUser(c *gin.Context) {
 	type UpdateUserEmailRequest struct {
 		Email string `json:"email" binding:"required,email"`
