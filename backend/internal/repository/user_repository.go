@@ -1,18 +1,23 @@
 package repository
 
 import (
+	"backend/internal/auth"
+	"backend/internal/database"
+	"backend/internal/domain"
 	"database/sql"
 	"fmt"
-	"backend/internal/domain"
-	"backend/internal/database"
 )
 
-
-// CreateUser 将新用户插入数据库
+// CreateUser はハッシュ化されたパスワードで新しいユーザーをデータベースに保存します。
 func CreateUser(username string, password string, email string) (int64, error) {
+	hashedPassword, err := auth.HashPassword(password)
+	if err != nil {
+		return 0, fmt.Errorf("repository.CreateUser: %w", err)
+	}
+
 	query := "INSERT INTO users (username, password, email) VALUES (?, ?, ?)"
 
-	result, err := database.DB.Exec(query, username, password, email)
+	result, err := database.DB.Exec(query, username, hashedPassword, email)
 	if err != nil {
 		return 0, fmt.Errorf("could not insert user: %v", err)
 	}
@@ -25,8 +30,8 @@ func CreateUser(username string, password string, email string) (int64, error) {
 	return id, nil
 }
 
-// GetUserByID 根据用户 ID 从数据库中检索用户
-func GetUserByID(id int64)(*domain.User, error){
+// GetUserByID
+func GetUserByID(id int64) (*domain.User, error) {
 	query := "SELECT id, username, password, email, created_at, updated_at FROM users WHERE id = ?"
 
 	row := database.DB.QueryRow(query, id)

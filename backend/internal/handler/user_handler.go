@@ -5,19 +5,15 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-
 	"github.com/gin-gonic/gin"
 )
 
-// 定义请求体结构
 type CreateUserRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Username string `json:"username" binding:"required,min=3"`
+	Password string `json:"password" binding:"required,min=8"`
 	Email    string `json:"email" binding:"required,email"`
 }
 
-// 处理函数
-// 创建user
 func HandleCreateUser(c *gin.Context) {
 	var req CreateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

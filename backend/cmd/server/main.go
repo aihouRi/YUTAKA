@@ -3,18 +3,29 @@ package main
 import (
 	"backend/internal/database"
 	"backend/internal/handler"
+	"backend/internal/config"
 	"fmt"
 	"log"
 	"time"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql" // MySQL 驱动包
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	dsn := "root:20170407@tcp(127.0.0.1:3306)/go_practice?charset=utf8mb4&parseTime=True&loc=Local"
-	if err := database.InitDB(dsn); err != nil {
-		log.Fatalf("main: Failed to initialize database: %v", err)
+	err := godotenv.Load()
+	if err != nil {
+        log.Println("警告: .env ファイルの読み込みに失敗しました。環境変数を直接使用します。")
+    }
+
+	if err := config.LoadConfig(); err != nil {
+		log.Fatalf("main: 設定のロードに失敗しました: %v", err)
+	}
+
+	// 2. データベース接続を初期化 (設定からDSNを使用)
+	if err := database.InitDB(config.AppConfig.DatabaseDSN); err != nil {
+		log.Fatalf("main: データベースの初期化に失敗しました: %v", err)
 	}
 
 	defer func() {
@@ -46,8 +57,9 @@ func main() {
 		userRoutes.DELETE("/:id", handler.HandleDeleteUser)
 	}
 
+	port := config.AppConfig.ServerPort
 	fmt.Println("Starting server on :8080")
-	if err := router.Run(":8080"); err != nil {
+	if err := router.Run(port); err != nil {
 		log.Fatalf("main: Error staring Gin server: %v", err)
 	}
 }

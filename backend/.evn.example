@@ -1,0 +1,4 @@
+# .env.example
+SERVER_PORT=":8080"
+DATABASE_DSN="your_db_user:your_db_password@tcp(127.0.0.1:3306)/go_practice?charset=utf8mb4&parseTime=True&loc=Local"
+JWT_SECRET_KEY="ここには非常に強力な秘密鍵を設定してください"
