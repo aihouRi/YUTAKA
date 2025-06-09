@@ -3,7 +3,10 @@ package auth
 
 import (
 	"backend/internal/config" // 設定情報を取得するため
+	"errors"
+	"fmt"
 	"time"
+
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -47,4 +50,32 @@ func GenerateToken(userID int64, username string) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+// ValidateToken はJWTトークン文字列を検証し、有効であればクレームを返します。
+func ValidateToken(tokenString string) (*Claims, error) {
+	// 設定からJWTの秘密鍵を取得します。
+	jwtKey := []byte(config.AppConfig.JWTSecretKey)
+
+	// カスタムクレームを使ってトークンを解析します。
+	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		// 署名アルゴリズムが期待通り（HS256）であることを確認します。
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("予期しない署名アルゴリズムです: %v", token.Header["alg"])
+		}
+		// 検証用のキーを返します。
+		return jwtKey, nil
+	})
+
+	if err != nil {
+		// パース中にエラーが発生した場合（例：署名が不正、有効期限切れなど）
+		return nil, fmt.Errorf("無効なトークンです: %w", err)
+	}
+
+	// トークンからクレームを抽出し、その有効性を確認します。
+	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
+		return claims, nil
+	}
+	
+	return nil, errors.New("無効なトークンです")
 }

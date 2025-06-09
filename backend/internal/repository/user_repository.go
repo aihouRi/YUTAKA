@@ -129,7 +129,6 @@ func UpdateUserPassword(newPassword string, id int64) (int64, error) {
 	return rowsAffected, nil
 }
 
-// DeleteUser 根据 ID 从数据库中删除用户
 func DeleteUser(id int64) (int64, error) {
 	query := "DELETE FROM users WHERE id = ?"
 	result, err := database.DB.Exec(query, id)

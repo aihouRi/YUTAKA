@@ -4,13 +4,16 @@ import (
 	"backend/internal/config"
 	"backend/internal/database"
 	"backend/internal/handler"
+	"backend/internal/handler/middleware"
 	"fmt"
+	"log"
+	"net/http"
+	"time"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
-	"log"
-	"time"
 )
 
 func main() {
@@ -53,15 +56,32 @@ func main() {
 		authRoutes := api.Group("/auth")
 		{
 			authRoutes.POST("/login", handler.HandleLogin)
+			authRoutes.POST("/register", handler.HandleCreateUser)
 		}
 
-		userRoutes := api.Group("/users")
+		protectedRoutes := api.Group("/")
+		// .Use() を使って、このグループ全体にミドルウェアを適用します。
+		protectedRoutes.Use(middleware.JWTMiddleware())
 		{
-			userRoutes.POST("", handler.HandleCreateUser)
-			userRoutes.GET("/:id", handler.HandleGetUserID)
-			userRoutes.GET("", handler.HandleGetAllUsers)
-			userRoutes.PUT("/:id", handler.HandleUpdateUser)
-			userRoutes.DELETE("/:id", handler.HandleDeleteUser)
+			// テスト用のルート: /api/me (自分のプロフィール情報を取得)
+			protectedRoutes.GET("/me", func(c *gin.Context) {
+				// ミドルウェアによって設定されたユーザーIDを取得します。
+				userID, exists := c.Get("userID")
+				if !exists {
+					c.JSON(http.StatusInternalServerError, gin.H{"error": "ユーザーIDがコンテキストに見つかりません。"})
+					return
+				}
+
+				// テストのため、ユーザーIDをそのまま返します。
+				c.JSON(http.StatusOK, gin.H{
+					"message": "あなたは正常に認証されています。",
+					"user_id": userID,
+				})
+			})
+			// userRoutes.GET("/:id", handler.HandleGetUserID)
+			// userRoutes.GET("", handler.HandleGetAllUsers)
+			// userRoutes.PUT("/:id", handler.HandleUpdateUser)
+			// userRoutes.DELETE("/:id", handler.HandleDeleteUser)
 		}
 	}
 
