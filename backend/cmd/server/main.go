@@ -16,6 +16,20 @@ import (
 	"github.com/joho/godotenv"
 )
 
+func DebugHeadersMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		log.Println("--- DEBUG: 受信したリクエストヘッダー ---")
+		for key, values := range c.Request.Header {
+			for _, value := range values {
+				log.Printf("%s: %s\n", key, value)
+			}
+		}
+		log.Println("--- DEBUG END ---")
+
+		c.Next()
+	}
+}
+
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -40,7 +54,7 @@ func main() {
 	}()
 
 	router := gin.Default()
-
+	router.Use(DebugHeadersMiddleware())
 	router.Use(
 		cors.New(cors.Config{
 			AllowOrigins:     []string{"http://localhost:3000"},
@@ -78,6 +92,8 @@ func main() {
 					"user_id": userID,
 				})
 			})
+
+			protectedRoutes.PUT("/users/me/password", handler.HandleChangePassword)
 			// userRoutes.GET("/:id", handler.HandleGetUserID)
 			// userRoutes.GET("", handler.HandleGetAllUsers)
 			// userRoutes.PUT("/:id", handler.HandleUpdateUser)

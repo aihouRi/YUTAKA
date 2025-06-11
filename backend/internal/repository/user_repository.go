@@ -104,17 +104,15 @@ func UpdateUserEmail(id int64, newEmail string) (int64, error) {
 		return 0, fmt.Errorf("UpdateUserEmail: could not update user email for id %d: %v", id, err)
 	}
 
-	// 获取受该 UPDATE 语句影响的行数
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return 0, fmt.Errorf("UpdateUserEmail: could not get rows affected after update: %v", err)
 	}
 
-	// 返回受影响的行数和 nil 错误
 	return rowsAffected, nil
 }
 
-// 更新置顶用户密码
+
 func UpdateUserPassword(newPassword string, id int64) (int64, error) {
 	query := "UPDATE users SET password = ?  WHERE id = ?"
 	result, err := database.DB.Exec(query, newPassword, id)
